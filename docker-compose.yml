@@ -1,0 +1,12 @@
+version: '2'
+
+services:
+  jupyter:
+    image: jupyter/all-spark-notebook:279b14bbdda3
+    volumes:
+      - .:/home/jovyan/alsad-core:ro
+    ports:
+      - "8888:8888"
+
+  spark:
+    image:  alsad/spark:2.1.0-2.2.0-1-hadoop-2.7
