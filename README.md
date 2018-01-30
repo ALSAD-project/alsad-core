@@ -26,6 +26,6 @@ This is the core engine for ALSAD.
 │   └── learners               # learner package
 │       └── drivers                # learner driver package
 │           └── spark                  # learner driver package for Apache Spark    
-└── scripts                # some scripts for compilation
+└── scripts                # some useful scripts
 
 ```
