@@ -10,3 +10,27 @@ services:
 
   spark:
     image:  alsad/spark:2.1.0-2.2.0-1-hadoop-2.7
+
+  expertsystem-daemon:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/expertsystem.daemon.dockerfile
+    image: localhost/expertsystem
+    environment:
+      - PORT=4000
+      - HOSTNAME=0.0.0.0
+      - SOURCE_DIRECTORY=tmp/input/
+      - DESTINATION_DIRECTORY=tmp/input/
+    ports:
+      - "4000:4000"
+
+  expertsystem-terminal:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/expertsystem.terminal.dockerfile
+    image: localhost/expertsystem
+    environment:
+      - PORT=4000
+      - HOSTNAME=expertsystem-daemon
+      - SOURCE_DIRECTORY=tmp/input/
+      - DESTINATION_DIRECTORY=tmp/input/

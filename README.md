@@ -29,3 +29,13 @@ This is the core engine for ALSAD.
 └── scripts                # some useful scripts
 
 ```
+
+## Development
+### Expert System
+1. Please enable the `localConfigure()` in `pkg/expertsystem/expertsystem.go` for localhost setting
+2. `$ go run cmd/expertsystem/daemon/main.go`
+3. `$ go run cmd/expertsystem/terminal/main.go`
+
+For running in docker:
+1. `$ docker-compose up --build expertsystem-daemon`
+2. `$ docker-compose up --build expertsystem-terminal`

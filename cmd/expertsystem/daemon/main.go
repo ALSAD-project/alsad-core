@@ -168,7 +168,7 @@ func main() {
 	flag.Parse()
 
 	s := &http.Server{
-		Addr:           "0.0.0.0:" + strconv.Itoa(*port),
+		Addr:           config.Host + ":" + strconv.Itoa(*port),
 		MaxHeaderBytes: 1 << 20, // Max header of 1MB
 	}
 

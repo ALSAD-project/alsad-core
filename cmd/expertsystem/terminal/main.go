@@ -35,8 +35,9 @@ func main() {
 	flag.Parse()
 
 	c := &http.Client{}
+	endpoint := "http://" + config.Host + ":" + strconv.Itoa(*port)
 
-	resp, err := c.Get("http://localhost:" + strconv.Itoa(*port) + "/read_data?linePerPage=1&page=0")
+	resp, err := c.Get(endpoint + "/read_data?linePerPage=1&page=0")
 	expertsystem.CheckFatal(err)
 	json.NewDecoder(resp.Body).Decode(&expertData)
 	lineCount = expertData.LineCount
@@ -51,7 +52,7 @@ func main() {
 	for page := 1; page <= lineCount; page++ {
 
 		// Read data from GET HTTP Request
-		resp, err := c.Get("http://localhost:" + strconv.Itoa(*port) + "/read_data?linePerPage=1&page=" + strconv.Itoa(page))
+		resp, err := c.Get(endpoint + "/read_data?linePerPage=1&page=" + strconv.Itoa(page))
 		expertsystem.CheckFatal(err)
 		json.NewDecoder(resp.Body).Decode(&expertData)
 
@@ -67,7 +68,7 @@ func main() {
 		// Encode Struct and update daemon via POST HTTP Request
 		b := new(bytes.Buffer)
 		json.NewEncoder(b).Encode(expertData)
-		resp, err = c.Post("http://localhost:"+strconv.Itoa(*port)+"/update_label", "application/json; charset=utf-8", b)
+		resp, err = c.Post(endpoint+"/update_label", "application/json; charset=utf-8", b)
 		expertsystem.CheckFatal(err)
 	}
 	fmt.Print("All pending outlier is marked.\n")

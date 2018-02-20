@@ -2,6 +2,7 @@ package expertsystem
 
 import (
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -33,37 +34,41 @@ type ExpertData struct {
 // ---------------------------
 type Config struct {
 	Port    int
+	Host    string
 	SrcDir  string
 	DestDir string
 }
 
 // Configure expertsystem configuration from env var
 func Configure() (config Config, err error) {
-	_port, err := strconv.Atoi(os.Getenv("REQUEST_PORT"))
+	_port, err := strconv.Atoi(os.Getenv("PORT"))
+	_host := os.Getenv("HOSTNAME")
 	_srcDir := os.Getenv("SOURCE_DIRECTORY")
 	_destDir := os.Getenv("DESTINATION_DIRECTORY")
 
 	if (err != nil) || (_srcDir == "") || (_destDir == "") {
 		// Error handling for invalid env var
 		// ----
-		// return config, errors.New("Fatal error invalid enviornment variables")
+		return config, errors.New("Fatal error invalid enviornment variables")
 		// ----
-		// Or update to default value by fakeConfigure()
-		return fakeConfigure()
+		// Or update to default value by localConfigure()
+		// return localConfigure()
 	}
 	config.Port = _port
+	config.Host = _host
 	config.SrcDir = _srcDir
 	config.DestDir = _destDir
 	return config, nil
 }
 
 // For Dev Purpose
-func fakeConfigure() (config Config, err error) {
-	config.Port = 4000
-	config.SrcDir = "tmp/input/"
-	config.DestDir = "tmp/output/"
-	return config, nil
-}
+// func localConfigure() (config Config, err error) {
+// 	config.Port = 4000
+// 	config.Host = "127.0.0.1"
+// 	config.SrcDir = "tmp/input/"
+// 	config.DestDir = "tmp/output/"
+// 	return config, nil
+// }
 
 // Config ends
 // ---------------------------
