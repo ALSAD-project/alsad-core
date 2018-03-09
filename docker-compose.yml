@@ -17,10 +17,9 @@ services:
       dockerfile: ./dockerfiles/expertsystem.daemon.dockerfile
     image: localhost/expertsystem
     environment:
-      - PORT=4000
-      - HOSTNAME=0.0.0.0
-      - SOURCE_DIRECTORY=tmp/input/
-      - DESTINATION_DIRECTORY=tmp/input/
+      - ES_DAEMON_PORT=4000
+      - ES_SRC_DIR=tmp/input/
+      - ES_DEST_DIR=tmp/output/
     ports:
       - "4000:4000"
 
@@ -30,7 +29,7 @@ services:
       dockerfile: ./dockerfiles/expertsystem.terminal.dockerfile
     image: localhost/expertsystem
     environment:
-      - PORT=4000
-      - HOSTNAME=expertsystem-daemon
-      - SOURCE_DIRECTORY=tmp/input/
-      - DESTINATION_DIRECTORY=tmp/input/
+      - ES_DAEMON_PORT=4000
+      - ES_DAEMON_HOST=expertsystem-daemon
+      - ES_SRC_DIR=tmp/input/
+      - ES_DEST_DIR=tmp/output/

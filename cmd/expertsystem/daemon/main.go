@@ -20,10 +20,21 @@ import (
 	"strconv"
 
 	"github.com/ALSAD-project/alsad-core/pkg/expertsystem"
+	"github.com/kelseyhightower/envconfig"
 )
 
-var config expertsystem.Config
+const (
+	configPrefix = "es"
+)
+
+type config struct {
+	DaemonPort int    `split_words:"true" default:"4000"`
+	SrcDir     string `split_words:"true" required:"true"`
+	DestDir    string `split_words:"true" required:"true"`
+}
+
 var err error
+var esConfig config
 var out []byte
 
 func getExpertData(query url.Values) (expertData expertsystem.ExpertData, err error) {
@@ -70,7 +81,7 @@ func readDataHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files, err := ioutil.ReadDir(config.SrcDir)
+	files, err := ioutil.ReadDir(esConfig.SrcDir)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -91,7 +102,7 @@ func readDataHandler(w http.ResponseWriter, r *http.Request) {
 	})
 	fileName := files[0].Name()
 
-	srcFile, err := os.Open(config.SrcDir + fileName)
+	srcFile, err := os.Open(esConfig.SrcDir + fileName)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -135,7 +146,7 @@ func updateLabelHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	destFile, err := os.OpenFile(config.DestDir+expertData.Filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
+	destFile, err := os.OpenFile(esConfig.DestDir+expertData.Filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -161,14 +172,15 @@ func updateLabelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	config, err = expertsystem.Configure()
-	expertsystem.CheckFatal(err)
+	if err := envconfig.Process(configPrefix, &esConfig); err != nil {
+		log.Fatal(err.Error())
+	}
 
-	port := flag.Int("port", config.Port, "Port to accept connections on.")
+	port := flag.Int("port", esConfig.DaemonPort, "Port to accept connections on.")
 	flag.Parse()
 
 	s := &http.Server{
-		Addr:           config.Host + ":" + strconv.Itoa(*port),
+		Addr:           "0.0.0.0:" + strconv.Itoa(*port),
 		MaxHeaderBytes: 1 << 20, // Max header of 1MB
 	}
 

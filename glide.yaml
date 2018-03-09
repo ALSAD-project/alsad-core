@@ -1,0 +1,3 @@
+package: github.com/ALSAD-project/alsad-core
+import: 
+- package: github.com/kelseyhightower/envconfig
