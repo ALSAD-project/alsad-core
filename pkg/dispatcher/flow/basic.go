@@ -145,7 +145,7 @@ func (f *basicRateLimitedFlowImpl) startDispatch(errChan chan<- error) {
 
 func (f *basicRateLimitedFlowImpl) Run(errChan chan<- error) error {
 	if f.GetState() != StateReady {
-		return fmt.Errorf("Cannot start running at %v state", f.state)
+		return fmt.Errorf("cannot start running at %v state", f.state)
 	}
 	go f.startDispatch(errChan)
 

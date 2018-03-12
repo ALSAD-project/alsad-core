@@ -1,4 +1,8 @@
 package: github.com/ALSAD-project/alsad-core
-
 import:
 - package: github.com/kelseyhightower/envconfig
+- package: github.com/fsnotify/fsnotify
+  version: ^1.4.7
+- package: golang.org/x/sys
+  subpackages:
+  - unix

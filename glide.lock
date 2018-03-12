@@ -1,6 +1,12 @@
-hash: c789f814ba34d241ab11d17006596549d9998e654ed3e2266a29feab00c45ee5
-updated: 2018-02-07T13:31:35.000153584Z
+hash: 83e9f50df5dcac61fd7d5efa94fa1dcbfc026bfbb23d0a7ee0240c300e5085c3
+updated: 2018-03-12T10:03:29.669833939Z
 imports:
+- name: github.com/fsnotify/fsnotify
+  version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
 - name: github.com/kelseyhightower/envconfig
-  version: 462fda1f11d8cad3660e52737b8beefd27acfb3f
+  version: b2c5c876e2659d9060d82e9b8494150d53854cc4
+- name: golang.org/x/sys
+  version: c28acc882ebcbfbe8ce9f0f14b9ac26ee138dd51
+  subpackages:
+  - unix
 testImports: []

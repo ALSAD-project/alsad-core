@@ -43,3 +43,7 @@ services:
       - HOSTNAME=expertsystem-daemon
       - SOURCE_DIRECTORY=tmp/input/
       - DESTINATION_DIRECTORY=tmp/input/
+
+volumes:
+  expert-db:
+    driver: local
