@@ -11,6 +11,15 @@ services:
   spark:
     image:  alsad/spark:2.1.0-2.2.0-1-hadoop-2.7
 
+  alsad-dev:
+      build:
+        context: .
+        dockerfile: ./dockerfiles/godev.dockerfile
+      image: localhost/godev:1.9-alpine
+      working_dir: /go/src/github.com/ALSAD-project/alsad-core
+      volumes:
+        - .:/go/src/github.com/ALSAD-project/alsad-core
+
   expertsystem-daemon:
     build:
       context: .
