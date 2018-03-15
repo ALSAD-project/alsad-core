@@ -1,0 +1,4 @@
+#!/bin/bash
+
+minikube start --cpus 8 --memory 8192 --vm-driver hyperkit
+kubectl create -f spark/dist/conf/kubernetes-resource-staging-server.yaml
