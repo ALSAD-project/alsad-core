@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd spark/dist/
+
+bin/spark-submit \
+  --deploy-mode cluster \
+  --master k8s://http://127.0.0.1:8001 \
+  --conf spark.executor.instances=1 \
+  --conf spark.app.name=spark-pi \
+  --conf spark.kubernetes.driver.docker.image=kubespark/spark-driver-py:v2.2.0-kubernetes-0.5.0 \
+  --conf spark.kubernetes.executor.docker.image=kubespark/spark-executor-py:v2.2.0-kubernetes-0.5.0 \
+  --jars local:///opt/spark/examples/jars/spark-examples_2.11-2.2.0-k8s-0.5.0.jar \
+  local:///opt/spark/examples/src/main/python/pi.py 10

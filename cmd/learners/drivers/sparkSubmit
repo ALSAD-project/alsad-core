@@ -1,0 +1,14 @@
+#!/bin/bash
+
+cd spark/dist/
+
+bin/spark-submit \
+  --deploy-mode cluster \
+  --class org.apache.spark.examples.SparkPi \
+  --master k8s://http://127.0.0.1:8001 \
+  --kubernetes-namespace default \
+  --conf spark.executor.instances=1 \
+  --conf spark.app.name=spark-pi \
+  --conf spark.kubernetes.driver.docker.image=kubespark/spark-driver:v2.2.0-kubernetes-0.5.0 \
+  --conf spark.kubernetes.executor.docker.image=kubespark/spark-executor:v2.2.0-kubernetes-0.5.0 \
+  local:///opt/spark/examples/jars/spark-examples_2.11-2.2.0-k8s-0.5.0.jar
