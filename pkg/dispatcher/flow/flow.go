@@ -7,14 +7,14 @@ type State string
 type Flow interface {
 	// Run triggers the dispatching flow to run.
 	//
-	// This method is expected to run in an asynchronize way. This method
+	// This method is expected to run in an asynchronous way. This method
 	// returns an error if facing any immediate errors when setting up the flow
 	// to run. Other errors during run time should be pass through the channel.
 	Run(chan<- error) error
 
 	// Stop triggers the dispatching flow to stop gracefully.
 	//
-	// This method is expected to run in an asynchronize way. This method
+	// This method is expected to run in an asynchronous way. This method
 	// returns an error if facing any immediate errors when stopping the flow.
 	Stop() error
 

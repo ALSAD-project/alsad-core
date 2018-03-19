@@ -1,30 +1,55 @@
 package flow
 
 import (
+	"github.com/ALSAD-project/alsad-core/pkg/dispatcher/communicator"
 	"github.com/ALSAD-project/alsad-core/pkg/dispatcher/component"
 )
 
 // NewTrainingFlow creates a training flow
 func NewTrainingFlow(
-	dataSource component.DataSourceComponent,
-	behaviorAnalyzer component.DataProcessingComponent,
-	unsupervisedLeaner component.DataProcessingComponent,
-	expertInterface component.DataProcessingComponent,
-	supervisedLeaner component.DataProcessingComponent,
-) RateLimitedFlow {
-	f := newBasicRateLimitedFlow(
-		"training",
-		dataSource,
+	feederComm communicator.Fetcher,
+	baComm communicator.Sender,
+	uslComm communicator.Sender,
+	expertComm communicator.Communicator,
+	slComm communicator.Sender,
+) (Flow, error) {
+	upper, err := newBasicRateLimitedFlow(
+		"Training Upper Flow",
+		component.NewBasicDataSourceComponent("Feeder", feederComm),
 		[]component.DataProcessingComponent{
-			behaviorAnalyzer,
-			unsupervisedLeaner,
-			expertInterface,
-			supervisedLeaner,
+			component.NewBasicDataProcessingComponent(
+				"Behavior Analyzer",
+				baComm,
+			),
+			component.NewBasicDataProcessingComponent(
+				"Unsupervised Learner",
+				uslComm,
+			),
+			component.NewBasicDataProcessingComponent(
+				"Expert Interface Sender",
+				expertComm,
+			),
 		},
-		DefaultRateLimit,
 	)
 
-	f.SetState(StateReady)
+	if err != nil {
+		return nil, err
+	}
 
-	return &f
+	lowerFlow, err := newBasicRateLimitedFlow(
+		"Training Lower Flow",
+		component.NewBasicDataSourceComponent("Expert Interface Fetcher", expertComm),
+		[]component.DataProcessingComponent{
+			component.NewBasicDataProcessingComponent(
+				"Supervised Learner",
+				slComm,
+			),
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return newCompoundFlow(upper, lowerFlow)
 }

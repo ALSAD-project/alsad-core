@@ -23,16 +23,15 @@ func newBasicRateLimitedFlow(
 	name string,
 	dataSource component.DataSourceComponent,
 	dataProcessors []component.DataProcessingComponent,
-	rateLimit float32,
-) basicRateLimitedFlowImpl {
-	return basicRateLimitedFlowImpl{
+) (RateLimitedFlow, error) {
+	return &basicRateLimitedFlowImpl{
 		name:           name,
 		dataSource:     dataSource,
 		dataProcessors: dataProcessors,
-		rateLimit:      rateLimit,
-		state:          StateInit,
+		rateLimit:      DefaultRateLimit,
+		state:          StateReady,
 		stateMutex:     sync.RWMutex{},
-	}
+	}, nil
 }
 
 func (f *basicRateLimitedFlowImpl) GetState() State {
@@ -123,7 +122,7 @@ func (f *basicRateLimitedFlowImpl) sinkData(dataSink <-chan []byte) {
 
 func (f *basicRateLimitedFlowImpl) startDispatch(errChan chan<- error) {
 	dataChannels := []chan []byte{}
-	for _ = range f.dataProcessors {
+	for range f.dataProcessors {
 		dataChannels = append(dataChannels, make(chan []byte))
 	}
 	dataSink := make(chan []byte)
