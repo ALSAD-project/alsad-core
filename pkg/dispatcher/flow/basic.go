@@ -68,6 +68,7 @@ func (f *basicRateLimitedFlowImpl) ensureDispatchingRate(
 			waitTime,
 		)
 		<-time.After(waitTime)
+		current = current.Add(waitTime)
 	}
 	return current
 }
