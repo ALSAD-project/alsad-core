@@ -15,6 +15,7 @@ type fsCommunicator struct {
 	outputPath string
 }
 
+// NewFSCommunicator creates a communicator backed by file system
 func NewFSCommunicator(inputPath, outputPath string) (Communicator, error) {
 	outputPathStat, err := os.Stat(outputPath)
 	if err != nil {

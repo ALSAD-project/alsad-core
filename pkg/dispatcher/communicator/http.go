@@ -11,7 +11,7 @@ type httpCommunicator struct {
 	url url.URL
 }
 
-// NewHTTPCommunicator creates a httpCommunicator for the provided url
+// NewHTTPCommunicator creates a HTTP communicator for the provided url
 func NewHTTPCommunicator(urlString string) (Communicator, error) {
 	parsed, err := url.Parse(urlString)
 	if err != nil {
