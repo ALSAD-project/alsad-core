@@ -117,7 +117,7 @@ func (f *basicRateLimitedFlowImpl) dispatchDataDataProcessor(
 
 func (f *basicRateLimitedFlowImpl) sinkData(dataSink <-chan []byte) {
 	for data := range dataSink {
-		log.Printf("Got %d bytes of data from Data sink", len(data))
+		log.Printf("Got %d bytes of data from Data Sink", len(data))
 	}
 }
 
