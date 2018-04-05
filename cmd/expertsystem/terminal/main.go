@@ -30,8 +30,6 @@ const (
 type config struct {
 	DaemonPort int    `split_words:"true" default:"4000"`
 	DaemonHost string `split_words:"true" required:"true"`
-	SrcDir     string `split_words:"true" required:"true"`
-	DestDir    string `split_words:"true" required:"true"`
 }
 
 func newUUID() (string, error) {
@@ -52,6 +50,7 @@ func main() {
 	var esConfig config
 	var expertData expertsystem.ExpertData
 	var lineCount int
+	var srcFilename string
 
 	if err := envconfig.Process(configPrefix, &esConfig); err != nil {
 		log.Fatal(err.Error())
@@ -85,11 +84,12 @@ func main() {
 	for page := 1; page <= lineCount; page++ {
 
 		// Read data from GET HTTP Request
-		resp, err := c.Get(endpoint + "/read_data?linePerPage=1&page=" + strconv.Itoa(page))
+		resp, err := c.Get(endpoint + "/read_data?linePerPage=1&page=1&srcFilename=" + srcFilename)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
 		json.NewDecoder(resp.Body).Decode(&expertData)
+		srcFilename = expertData.SrcFilename
 
 		// Ask for user input
 		fmt.Print("Outlier [" + strconv.Itoa(page) + "/" + strconv.Itoa(lineCount) + "]: ")

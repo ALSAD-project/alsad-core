@@ -18,10 +18,13 @@ services:
     image: localhost/expertsystem
     environment:
       - ES_DAEMON_PORT=4000
-      - ES_SRC_DIR=tmp/input/
-      - ES_DEST_DIR=tmp/output/
+      - ES_SRC_DIR=/var/run/expert-daemon/input/
+      - ES_DEST_DIR=/var/run/expert-daemon/output/
     ports:
       - "4000:4000"
+    volumes:
+      - ./tmp/input:/var/run/expert-daemon/input/
+      - ./tmp/output:/var/run/expert-daemon/output/
 
   expertsystem-terminal:
     build:
@@ -31,5 +34,3 @@ services:
     environment:
       - ES_DAEMON_PORT=4000
       - ES_DAEMON_HOST=expertsystem-daemon
-      - ES_SRC_DIR=tmp/input/
-      - ES_DEST_DIR=tmp/output/

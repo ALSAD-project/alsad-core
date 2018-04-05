@@ -12,10 +12,11 @@ type ExpertData struct {
 	LinePerPage int
 	Page        int
 
-	Filename  string   `json:"filename"`
-	Labels    []string `json:"labels"`
-	LineCount int      `json:"lineCount"`
-	Lines     []string `json:"lines"`
+	Filename    string   `json:"filename"`
+	Labels      []string `json:"labels"`
+	LineCount   int      `json:"lineCount"`
+	Lines       []string `json:"lines"`
+	SrcFilename string   `json:"srcFilename"`
 }
 
 // ExpertData ends
