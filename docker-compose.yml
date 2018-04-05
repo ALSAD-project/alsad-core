@@ -44,6 +44,11 @@ services:
       - SOURCE_DIRECTORY=tmp/input/
       - DESTINATION_DIRECTORY=tmp/input/
 
+  redis:
+    image: redis:4.0-alpine
+    volumes:
+      - redis-store:/data
+
 volumes:
   expert-db:
-    driver: local
+  redis-store:
