@@ -1,19 +1,19 @@
-package flow
+package main
 
 import (
 	"github.com/ALSAD-project/alsad-core/pkg/dispatcher/communicator"
 	"github.com/ALSAD-project/alsad-core/pkg/dispatcher/component"
+	"github.com/ALSAD-project/alsad-core/pkg/dispatcher/flow"
 )
 
-// NewTrainingFlow creates a training flow
-func NewTrainingFlow(
+func newTrainingFlowFromCommunicators(
 	feederComm communicator.Fetcher,
 	baComm communicator.Sender,
 	uslComm communicator.Sender,
 	expertComm communicator.Communicator,
 	slComm communicator.Sender,
-) (Flow, error) {
-	upper, err := newBasicRateLimitedFlow(
+) (flow.Flow, error) {
+	upper, err := flow.NewBasicRateLimitedFlow(
 		"Training Upper Flow",
 		component.NewBasicDataSourceComponent("Feeder", feederComm),
 		[]component.DataProcessingComponent{
@@ -36,9 +36,12 @@ func NewTrainingFlow(
 		return nil, err
 	}
 
-	lowerFlow, err := newBasicRateLimitedFlow(
+	lower, err := flow.NewBasicRateLimitedFlow(
 		"Training Lower Flow",
-		component.NewBasicDataSourceComponent("Expert Interface Fetcher", expertComm),
+		component.NewBasicDataSourceComponent(
+			"Expert Interface Fetcher",
+			expertComm,
+		),
 		[]component.DataProcessingComponent{
 			component.NewBasicDataProcessingComponent(
 				"Supervised Learner",
@@ -51,5 +54,5 @@ func NewTrainingFlow(
 		return nil, err
 	}
 
-	return newCompoundFlow(upper, lowerFlow)
+	return flow.NewCompoundFlow(upper, lower)
 }

@@ -19,7 +19,8 @@ type basicRateLimitedFlowImpl struct {
 	stateMutex sync.RWMutex
 }
 
-func newBasicRateLimitedFlow(
+// NewBasicRateLimitedFlow creates a basic rate-limited flow
+func NewBasicRateLimitedFlow(
 	name string,
 	dataSource component.DataSourceComponent,
 	dataProcessors []component.DataProcessingComponent,

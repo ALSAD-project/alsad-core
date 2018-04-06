@@ -4,8 +4,22 @@ type compoundFlowImpl struct {
 	flows []Flow
 }
 
-func newCompoundFlow(flows ...Flow) (Flow, error) {
+// CompoundFlow defines the interface of a compound flow
+type CompoundFlow interface {
+	Flow
+
+	// UnderlyingFlows returns the underlying flows of
+	// the compound flow
+	UnderlyingFlows() []Flow
+}
+
+// NewCompoundFlow creates a compound flow of the input flows
+func NewCompoundFlow(flows ...Flow) (CompoundFlow, error) {
 	return &compoundFlowImpl{flows: flows}, nil
+}
+
+func (f compoundFlowImpl) UnderlyingFlows() []Flow {
+	return f.flows
 }
 
 func (f compoundFlowImpl) Run(errChan chan<- error) error {
