@@ -52,3 +52,4 @@ services:
 volumes:
   expert-db:
   redis-store:
+  fsq-store:
