@@ -5,15 +5,15 @@ type memoryCommunicator struct {
 }
 
 const (
-	// DefaultmemoryQueueSize represents the deault queue size for
+	// DefaultMemoryQueueSize represents the deault queue size for
 	// memory communicator
-	DefaultmemoryQueueSize = 20
+	DefaultMemoryQueueSize = 20
 )
 
 // NewMemoryCommunicator creates a communicator backed by memory
 func NewMemoryCommunicator() (Communicator, error) {
 	return memoryCommunicator{
-		queue: make(chan []byte, DefaultmemoryQueueSize),
+		queue: make(chan []byte, DefaultMemoryQueueSize),
 	}, nil
 }
 
