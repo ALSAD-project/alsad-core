@@ -2,6 +2,10 @@
 
 minikube start --cpus 16 --memory 16384 --vm-driver hyperkit
 sleep 5
-kubectl create -f spark/dist/conf/kubernetes-resource-staging-server.yaml
 kubectl cluster-info
+kubectl create -f spark/dist/conf/kubernetes-resource-staging-server.yaml
+sleep 30
+kubectl create -f contrib/statefulsets/zookeeper/zookeeper.yaml
+sleep 60
+kubectl create -f contrib/statefulsets/kafka/kafka.yaml
 kubectl proxy
