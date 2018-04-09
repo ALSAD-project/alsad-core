@@ -8,6 +8,9 @@ RUN \
 RUN curl https://glide.sh/get | sh
 
 COPY . $GOPATH/src/github.com/ALSAD-project/alsad-core
+WORKDIR $GOPATH/src/github.com/ALSAD-project/alsad-core
+
+RUN glide install
 
 RUN \
   go build \
