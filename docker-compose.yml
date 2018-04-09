@@ -20,6 +20,23 @@ services:
       volumes:
         - .:/go/src/github.com/ALSAD-project/alsad-core
 
+  datafeeder:
+    build:
+      context: .
+      dockerfile: ./dockerfiles/datafeeder.dockerfile
+    image: localhost/datafeeder
+    working_dir: /go/src/github.com/ALSAD-project/alsad-core
+    volumes:
+      - .:/go/src/github.com/ALSAD-project/alsad-core
+    environment:
+      - DF_PORT=8080
+      - DF_DATA_MEAN=100
+      - DF_DATA_VAR=20
+      - DF_NOISE_MEAN=0
+      - DF_NOISE_VAR=2
+    ports:
+      - "8080:8080"
+
   expertsystem-daemon:
     build:
       context: .
