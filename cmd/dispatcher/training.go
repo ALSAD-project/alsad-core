@@ -7,25 +7,25 @@ import (
 )
 
 func newTrainingFlowFromCommunicators(
-	feederComm communicator.Fetcher,
-	baComm communicator.Sender,
-	uslComm communicator.Sender,
+	feederFetcher communicator.Fetcher,
+	baSender communicator.Sender,
+	uslSender communicator.Sender,
 	expertComm communicator.Communicator,
-	slComm communicator.Sender,
+	slSender communicator.Sender,
 
 	rateLimit float32,
 ) (flow.Flow, error) {
 	upper, err := flow.NewBasicRateLimitedFlow(
 		"Training Upper Flow",
-		component.NewBasicDataSourceComponent("Feeder", feederComm),
+		component.NewBasicDataSourceComponent("Feeder", feederFetcher),
 		[]component.DataProcessingComponent{
 			component.NewBasicDataProcessingComponent(
 				"Behavior Analyzer",
-				baComm,
+				baSender,
 			),
 			component.NewBasicDataProcessingComponent(
 				"Unsupervised Learner",
-				uslComm,
+				uslSender,
 			),
 			component.NewBasicDataProcessingComponent(
 				"Expert Interface Sender",
@@ -47,7 +47,7 @@ func newTrainingFlowFromCommunicators(
 		[]component.DataProcessingComponent{
 			component.NewBasicDataProcessingComponent(
 				"Supervised Learner",
-				slComm,
+				slSender,
 			),
 		},
 	)

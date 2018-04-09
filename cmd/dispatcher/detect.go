@@ -7,11 +7,11 @@ import (
 )
 
 func newDetectFlowFromCommunicators(
-	feederComm communicator.Fetcher,
-	baComm communicator.Sender,
-	uslComm communicator.Sender,
-	slComm communicator.Sender,
-	expertComm communicator.Sender,
+	feederFetcher communicator.Fetcher,
+	baSender communicator.Sender,
+	uslSender communicator.Sender,
+	slSender communicator.Sender,
+	expertSender communicator.Sender,
 	rateLimit float32,
 ) (flow.Flow, error) {
 	memoryPipe, err := communicator.NewMemoryCommunicator()
@@ -21,7 +21,7 @@ func newDetectFlowFromCommunicators(
 
 	memoryAndExpertDemux, err := communicator.NewDemultiplexingSender(
 		memoryPipe,
-		expertComm,
+		expertSender,
 	)
 	if err != nil {
 		return nil, err
@@ -31,16 +31,16 @@ func newDetectFlowFromCommunicators(
 		"Detect Upper Flow",
 		component.NewBasicDataSourceComponent(
 			"Feeder",
-			feederComm,
+			feederFetcher,
 		),
 		[]component.DataProcessingComponent{
 			component.NewBasicDataProcessingComponent(
 				"Behavior Analyzer",
-				baComm,
+				baSender,
 			),
 			component.NewBasicDataProcessingComponent(
 				"Unsupervised Learner",
-				uslComm,
+				uslSender,
 			),
 			component.NewBasicDataProcessingComponent(
 				"Memory Pipe & Expert Sender Demux",
@@ -61,7 +61,7 @@ func newDetectFlowFromCommunicators(
 		[]component.DataProcessingComponent{
 			component.NewBasicDataProcessingComponent(
 				"Supervised Leaner",
-				slComm,
+				slSender,
 			),
 		},
 	)
