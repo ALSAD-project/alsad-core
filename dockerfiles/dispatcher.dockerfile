@@ -18,6 +18,10 @@ RUN \
     github.com/ALSAD-project/alsad-core/cmd/dispatcher
 
 FROM alpine:3.6
+
+ENV PORT 8000
+EXPOSE 8000
+
 COPY \
   --from=builder \
   /usr/local/bin/alsad-dispatcher \
