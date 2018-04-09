@@ -12,6 +12,8 @@ func newTrainingFlowFromCommunicators(
 	uslComm communicator.Sender,
 	expertComm communicator.Communicator,
 	slComm communicator.Sender,
+
+	rateLimit float32,
 ) (flow.Flow, error) {
 	upper, err := flow.NewBasicRateLimitedFlow(
 		"Training Upper Flow",
@@ -52,6 +54,11 @@ func newTrainingFlowFromCommunicators(
 
 	if err != nil {
 		return nil, err
+	}
+
+	if rateLimit > 0 {
+		upper.SetRateLimit(rateLimit)
+		lower.SetRateLimit(rateLimit)
 	}
 
 	return flow.NewCompoundFlow(upper, lower)

@@ -6,6 +6,8 @@ type Config struct {
 
 	EnterMode string `split_words:"true" required:"true"`
 
+	BasicRateLimit float32 `split_words:"true"`
+
 	FsqRedisAddr         string `split_words:"true" required:"true"`
 	FsqDir               string `split_words:"true" required:"true"`
 	FsqExpertInputQueue  string `split_words:"true" required:"true"`
