@@ -1,4 +1,4 @@
-version: '2'
+version: '3.4'
 
 services:
   jupyter:
@@ -19,6 +19,25 @@ services:
       working_dir: /go/src/github.com/ALSAD-project/alsad-core
       volumes:
         - .:/go/src/github.com/ALSAD-project/alsad-core
+
+  dispatcher:
+    image: alsad/dispatcher:git-9695aa3
+    depends_on:
+      - redis
+    networks:
+      - faas
+    volumes:
+      - fsq-store:/var/run/alsad-dispatcher/fsq
+    environment:
+      DP_ENTER_MODE: "training" # can be "detect", "feedback"
+      DP_FSQ_REDIS_ADDR: "redis:6379"
+      DP_FSQ_DIR: "/var/run/alsad-dispatcher/fsq"
+      DP_FSQ_EXPERT_INPUT_QUEUE: "expert-input-queue"
+      DP_FSQ_EXPERT_OUTPUT_QUEUE: "expert-output-queue"
+      DP_FEEDER_URL: "http://alsad_gateway:8080/function/feeder"
+      DP_BA_URL: "http://alsad_gateway:8080/function/ba"
+      DP_USL_URL: "http://alsad_gateway:8080/function/usl"
+      DP_SL_URL: "http://alsad_gateway:8080/function/sl"
 
   expertsystem-daemon:
     build:
@@ -46,6 +65,8 @@ services:
 
   redis:
     image: redis:4.0-alpine
+    networks:
+      - faas
     volumes:
       - redis-store:/data
 
@@ -53,3 +74,8 @@ volumes:
   expert-db:
   redis-store:
   fsq-store:
+
+networks:
+  faas:
+    external:
+      name: alsad_faas
