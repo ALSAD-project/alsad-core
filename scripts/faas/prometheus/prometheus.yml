@@ -40,4 +40,4 @@ alerting:
   alertmanagers:
   - static_configs:
     - targets:
-      - alertmanager:9093
+      - alsad_alertmanager:9093

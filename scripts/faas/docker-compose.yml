@@ -6,6 +6,8 @@ services:
         image: functions/gateway:0.7.8
         networks:
             - faas
+        depends_on:
+            - faas-swarm
         environment:
             functions_provider_url: "http://faas-swarm:8080/"
             read_timeout:  "25s"        # Maximum time to read HTTP request
