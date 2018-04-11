@@ -4,6 +4,9 @@ import (
     "bufio"
     "fmt"
     "net"
+    "log"
+
+    "github.com/kelseyhightower/envconfig"
 )
 
 func handleStreamIn(userProgConn net.Conn, inputConn net.Conn) {
@@ -28,12 +31,18 @@ func handleStreamOut(userProgConn net.Conn, inputConn net.Conn) {
 
 func main() {
 
-    userProgConn, err := net.Dial("tcp", ":9999")
+    driverConfig := config{}
+    if err := envconfig.Process("driver", &driverConfig); err != nil {
+        log.Fatalf("Error on processing configuration: %s", err.Error())
+        return
+    }
+
+    userProgConn, err := net.Dial("tcp", driverConfig.StreamInURL)
     if err != nil {
         panic(err)
     }
     
-    ln, err := net.Listen("tcp", ":8888")
+    ln, err := net.Listen("tcp", driverConfig.StreamOutURL)
     if err != nil {
         panic(err)
     }
