@@ -136,23 +136,6 @@ func updateLabelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func test1(w http.ResponseWriter, r *http.Request) {
-	str := []string{"a", "b"}
-	data, err := expertdata.SendData(str, expertInputCommunicator)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		w.Write([]byte("\n"))
-		w.Write([]byte(nil))
-		return
-	}
-	w.WriteHeader(200)
-	w.Write(data)
-	w.Write([]byte("\n"))
-	w.Write([]byte(nil))
-	return
-}
-
 func main() {
 	if err := envconfig.Process(configPrefix, &DaemonConfig); err != nil {
 		log.Fatal(err.Error())
@@ -184,7 +167,6 @@ func main() {
 
 	http.HandleFunc("/read_data", readDataHandler)
 	http.HandleFunc("/update_label", updateLabelHandler)
-	http.HandleFunc("/init", test1)
 
 	log.Println("Listening to connections on port", strconv.Itoa(*port))
 
