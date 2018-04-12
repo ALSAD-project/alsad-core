@@ -1,6 +1,7 @@
 
 import pandas as pd
 import numpy as np
+import socket
 from time import sleep
 from sklearn import linear_model
 from sklearn import preprocessing
@@ -38,8 +39,10 @@ clf.fit(X_train, y_train)
 #     print(clf.predict(X_incr.iloc[i+2:i+3]))
 #     sleep(1)
 
-
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+client.connect(("localhost", 8888))
+response = client.recv(4096)
+print(response)
 
 ##### End of Incremental Training #####
-
 
