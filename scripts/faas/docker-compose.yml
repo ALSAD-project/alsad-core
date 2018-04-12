@@ -8,6 +8,7 @@ services:
             - faas
         depends_on:
             - faas-swarm
+            - nats
         environment:
             functions_provider_url: "http://faas-swarm:8080/"
             read_timeout:  "25s"        # Maximum time to read HTTP request
@@ -123,6 +124,8 @@ services:
             - 9090:9090
         networks:
             - faas
+        depends_on:
+            - alertmanager
         deploy:
             placement:
                 constraints:
