@@ -5,9 +5,30 @@ import (
     "fmt"
     "net"
     "log"
+    "os"
+    "os/exec"
+    "os/signal"
+    "syscall"
 
     "github.com/kelseyhightower/envconfig"
 )
+
+func signalHandler(cmd *exec.Cmd) {
+    signal_chan := make(chan os.Signal, 1)
+    signal.Notify(signal_chan, syscall.SIGINT)
+    go func() {
+        for {
+            s := <-signal_chan
+            switch s {
+            case syscall.SIGINT:
+                if err := cmd.Process.Kill(); err != nil {
+                    panic(err)
+                }
+                os.Exit(0)
+            }
+        }
+    }()
+}
 
 func handleStreamIn(userProgConn net.Conn, inputConn net.Conn) {
     for {
@@ -36,6 +57,12 @@ func main() {
         log.Fatalf("Error on processing configuration: %s", err.Error())
         return
     }
+
+    cmd := exec.Command("python", "sgdclassifier.py")
+    if err := cmd.Start(); err != nil {
+        panic(err)
+    }
+    go signalHandler(cmd)
 
     userProgConn, err := net.Dial("tcp", driverConfig.StreamInURL)
     if err != nil {

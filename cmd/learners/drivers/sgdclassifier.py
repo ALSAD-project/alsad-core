@@ -34,15 +34,12 @@ clf.fit(X_train, y_train)
 
 ##### Begin of Incremental Training #####
 
-# for i in range(int(len(X_incr.index)/3)):
-#     clf.partial_fit(X_incr.iloc[i:i+1], y_incr.iloc[i:i+1], classes=np.unique(y))
-#     print(clf.predict(X_incr.iloc[i+2:i+3]))
-#     sleep(1)
-
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client.connect(("localhost", 8888))
-response = client.recv(4096)
-print(response)
+
+while True:
+	response = client.recv(4096)
+	client.send(response)
 
 ##### End of Incremental Training #####
 
