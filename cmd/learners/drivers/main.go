@@ -3,6 +3,7 @@ package main
 import (
     "bufio"
     "fmt"
+    "strings"
     "net"
     "log"
     "os"
@@ -58,7 +59,8 @@ func main() {
         return
     }
 
-    cmd := exec.Command("python", "sgdclassifier.py")
+    args := strings.Split(driverConfig.UserProgramArgs, " ")
+    cmd := exec.Command(driverConfig.UserProgram, args...)
     if err := cmd.Start(); err != nil {
         panic(err)
     }
