@@ -1,3 +1,20 @@
+// Example use:
+
+// The following example starts a data source as nc in Shell A,
+// and starts the driver in Shell B. The user program "python 
+// sgdclassifier.py" will be deployed by the driver. The driver
+// will wire up the data source and the user program.
+
+// (Shell A)
+// $ nc -lk 9999
+
+// (Shell B)
+// $ export StreamInURL=":9999"
+// $ export StreamOutURL=":8888"
+// $ export UserProgram="python sgdclassifier.py"
+// $ ./driver
+
+
 package main
 
 import (
