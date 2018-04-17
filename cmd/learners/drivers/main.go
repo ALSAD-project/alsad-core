@@ -3,7 +3,8 @@
 // The following example starts a data source as nc in Shell A,
 // and starts the driver in Shell B. The user program "python 
 // sgdclassifier.py" will be deployed by the driver. The driver
-// will wire up the data source and the user program.
+// will wire up the data source and the user program. The user 
+// program should initiate a TCP socket to this driver.
 
 // (Shell A)
 // $ nc -lk 9999
