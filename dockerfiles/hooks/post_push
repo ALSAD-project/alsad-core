@@ -1,0 +1,5 @@
+#!/bin/sh
+
+COMMIT_HASH=$(git rev-parse --short HEAD)
+docker tag $IMAGE_NAME $DOCKER_REPO:git-$COMMIT_HASH
+docker push $DOCKER_REPO:git-$COMMIT_HASH

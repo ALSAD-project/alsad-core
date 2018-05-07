@@ -7,106 +7,81 @@
 package main
 
 import (
-	"bufio"
 	"encoding/json"
 	"flag"
-	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
-	"os"
-	"sort"
 	"strconv"
 
-	"github.com/ALSAD-project/alsad-core/pkg/expertsystem"
+	"github.com/ALSAD-project/alsad-core/pkg/expertsystem/expertdata"
+	"github.com/ALSAD-project/alsad-core/pkg/expertsystem/config"
+	"github.com/kelseyhightower/envconfig"
+	"github.com/ALSAD-project/alsad-core/pkg/dispatcher/communicator"
 )
 
-var config expertsystem.Config
+const (
+	configPrefix = "es"
+)
+
 var err error
-var out []byte
+var DaemonConfig config.DaemonConfig
 
-func getExpertData(query url.Values) (expertData expertsystem.ExpertData, err error) {
-	page, err := strconv.Atoi(query.Get("page"))
-	if err != nil {
-		return expertData, err
-	}
-	linePerPage, err := strconv.Atoi(query.Get("linePerPage"))
-	if err != nil {
-		return expertData, err
-	}
-	expertData.Page = page
-	expertData.LinePerPage = linePerPage
-	return expertData, nil
-}
+var expertInputCommunicator communicator.Communicator
+var expertOutputCommunicator communicator.Communicator
 
-func readLine(r io.Reader, expertData expertsystem.ExpertData) (resExpertData expertsystem.ExpertData, err error) {
-	sc := bufio.NewScanner(r)
-	lastLine := 0
-
-	head := (expertData.Page - 1) * expertData.LinePerPage
-	tail := expertData.Page * expertData.LinePerPage
-
-	for sc.Scan() {
-		if lastLine >= head && lastLine < tail {
-			expertData.Lines = append(expertData.Lines, sc.Text())
-		}
-		lastLine++
-	}
-	expertData.LineCount = lastLine
-	return expertData, nil
-}
+var unlabeledData []string
+var labeledData []string
 
 // Request handler for expert client
 func readDataHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Accepted new connection.")
 
-	expertData, err := getExpertData(r.URL.Query())
+	expertData, err := expertdata.GetExpertDataFromQuery(r.URL.Query())
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		w.Write([]byte("\n"))
-		w.Write(out)
+		w.Write([]byte(nil))
 		return
 	}
 
-	files, err := ioutil.ReadDir(config.SrcDir)
+	if len(unlabeledData) == 0 {
+		unlabeledData, err = expertdata.FetchData(expertInputCommunicator, DaemonConfig.FsqRequestTimeout)
+
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte(err.Error()))
+			w.Write([]byte("\n"))
+			w.Write([]byte(nil))
+			return
+		}
+
+		if len(unlabeledData) == 0 {
+
+			expertData.Lines = []string{}
+			expertData.LineCount = 0
+
+			responseJSON, err := json.Marshal(expertData)
+			if err != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte(err.Error()))
+				w.Write([]byte("\n"))
+				w.Write([]byte(nil))
+				return
+			}
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write(responseJSON)
+		}
+	}
+
+	expertData, err = expertdata.GetExpertDataByLines(unlabeledData, expertData)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		w.Write([]byte("\n"))
-		w.Write(out)
-		return
-	}
-
-	if len(files) == 0 {
-		w.WriteHeader(200)
-		w.Write([]byte("No pending data is to be labeled."))
-		w.Write(out)
-		return
-	}
-
-	sort.Slice(files, func(i, j int) bool {
-		return files[i].ModTime().Unix() < files[j].ModTime().Unix()
-	})
-	fileName := files[0].Name()
-
-	srcFile, err := os.Open(config.SrcDir + fileName)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		w.Write([]byte("\n"))
-		w.Write(out)
-		return
-	}
-	defer srcFile.Close()
-
-	expertData, err = readLine(bufio.NewReader(srcFile), expertData)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		w.Write([]byte("\n"))
-		w.Write(out)
+		w.Write([]byte(nil))
 		return
 	}
 
@@ -115,7 +90,7 @@ func readDataHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		w.Write([]byte("\n"))
-		w.Write(out)
+		w.Write([]byte(nil))
 		return
 	}
 
@@ -125,51 +100,69 @@ func readDataHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateLabelHandler(w http.ResponseWriter, r *http.Request) {
-	var expertData expertsystem.ExpertData
+	var expertData expertdata.ExpertData
+
 	err := json.NewDecoder(r.Body).Decode(&expertData)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		w.Write([]byte("\n"))
-		w.Write(out)
+		w.Write([]byte(nil))
 		return
 	}
 
-	destFile, err := os.OpenFile(config.DestDir+expertData.Filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0755)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		w.Write([]byte("\n"))
-		w.Write(out)
-		return
+	j := 0
+	for i := 0; i < len(expertData.Labels); i++ {
+		labeledData = append(labeledData, expertData.Labels[j])
+		j++
 	}
-	writer := bufio.NewWriter(destFile)
-	defer destFile.Close()
 
-	for i := 0; i < len(expertData.Lines); i++ {
-		updatedData := expertData.Lines[i] + "," + expertData.Labels[i]
-		_, err := writer.WriteString(updatedData)
-		if err != nil {
+	if len(unlabeledData) == len(labeledData) {
+
+		log.Println(strconv.Itoa(len(labeledData)) + " records is pushed.")
+
+		if resp, err := expertdata.SendData(labeledData, expertOutputCommunicator); err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			w.Write([]byte(err.Error()))
+			w.Write(resp)
 			w.Write([]byte("\n"))
-			w.Write(out)
+			w.Write([]byte(nil))
 			return
+		} else {
+			unlabeledData = []string{}
+			labeledData = []string{}
 		}
-		writer.Flush()
 	}
 }
 
-func main() {
-	config, err = expertsystem.Configure()
-	expertsystem.CheckFatal(err)
 
-	port := flag.Int("port", config.Port, "Port to accept connections on.")
+func main() {
+	if err := envconfig.Process(configPrefix, &DaemonConfig); err != nil {
+		log.Fatal(err.Error())
+	}
+
+	port := flag.Int("port", DaemonConfig.DaemonPort, "Port to accept connections on.")
 	flag.Parse()
 
 	s := &http.Server{
-		Addr:           config.Host + ":" + strconv.Itoa(*port),
+		Addr:           "0.0.0.0:" + strconv.Itoa(*port),
 		MaxHeaderBytes: 1 << 20, // Max header of 1MB
+	}
+
+	expertInputCommunicator, err = communicator.NewFSRedisQueueCommunicator(
+		DaemonConfig.FsqDir,
+		DaemonConfig.FsqExpertInputQueue,
+		DaemonConfig.FsqRedisAddr,
+	)
+
+	expertOutputCommunicator, err = communicator.NewFSRedisQueueCommunicator(
+		DaemonConfig.FsqDir,
+		DaemonConfig.FsqExpertOutputQueue,
+		DaemonConfig.FsqRedisAddr,
+	)
+
+	if err != nil {
+		log.Fatal(err.Error())
 	}
 
 	http.HandleFunc("/read_data", readDataHandler)

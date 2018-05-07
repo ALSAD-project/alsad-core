@@ -1,4 +1,4 @@
-version: '2'
+version: '3.4'
 
 services:
   jupyter:
@@ -11,18 +11,57 @@ services:
   spark:
     image:  alsad/spark:2.1.0-2.2.0-1-hadoop-2.7
 
+  alsad-dev:
+      build:
+        context: .
+        dockerfile: ./dockerfiles/godev.dockerfile
+      image: localhost/godev:1.9-alpine
+      working_dir: /go/src/github.com/ALSAD-project/alsad-core
+      volumes:
+        - .:/go/src/github.com/ALSAD-project/alsad-core
+
+  dispatcher:
+    image: alsad/dispatcher:git-9695aa3
+    depends_on:
+      - redis
+    networks:
+      - faas
+    volumes:
+      - fsq-store:/var/run/alsad-dispatcher/fsq
+    environment:
+      DP_ENTER_MODE: "training" # can be "detect", "feedback"
+      DP_FSQ_REDIS_ADDR: "redis:6379"
+      DP_FSQ_DIR: "/var/run/alsad-dispatcher/fsq"
+      DP_FSQ_EXPERT_INPUT_QUEUE: "expert-input-queue"
+      DP_FSQ_EXPERT_OUTPUT_QUEUE: "expert-output-queue"
+      DP_FEEDER_URL: "http://alsad_gateway:8080/function/feeder"
+      DP_BA_URL: "http://alsad_gateway:8080/function/ba"
+      DP_USL_URL: "http://alsad_gateway:8080/function/usl"
+      DP_SL_URL: "http://alsad_gateway:8080/function/sl"
+
   expertsystem-daemon:
     build:
       context: .
       dockerfile: ./dockerfiles/expertsystem.daemon.dockerfile
     image: localhost/expertsystem
     environment:
-      - PORT=4000
-      - HOSTNAME=0.0.0.0
-      - SOURCE_DIRECTORY=tmp/input/
-      - DESTINATION_DIRECTORY=tmp/input/
+      ES_DAEMON_PORT: "4000"
+      ES_SRC_DIR: "/var/run/expert-daemon/input/"
+      ES_DEST_DIR: "/var/run/expert-daemon/output/"
+      ES_FSQ_REDIS_ADDR: "redis:6379"
+      ES_FSQ_DIR: "/var/run/alsad-dispatcher/fsq"
+      ES_FSQ_EXPERT_INPUT_QUEUE: "expert-input-queue"
+      ES_FSQ_EXPERT_OUTPUT_QUEUE: "expert-output-queue"
+      ES_FSQ_REQUEST_TIMEOUT: "10"
     ports:
       - "4000:4000"
+
+    depends_on:
+      - redis
+    networks:
+      - faas
+    volumes:
+      - expert-db:/var/run/alsad-dispatcher/fsq
 
   expertsystem-terminal:
     build:
@@ -30,7 +69,26 @@ services:
       dockerfile: ./dockerfiles/expertsystem.terminal.dockerfile
     image: localhost/expertsystem
     environment:
-      - PORT=4000
-      - HOSTNAME=expertsystem-daemon
-      - SOURCE_DIRECTORY=tmp/input/
-      - DESTINATION_DIRECTORY=tmp/input/
+      ES_DAEMON_PORT: "4000"
+      ES_DAEMON_HOST: "expertsystem-daemon"
+    depends_on:
+      - expertsystem-daemon
+    networks:
+      - faas
+
+  redis:
+    image: redis:4.0-alpine
+    networks:
+      - faas
+    volumes:
+      - redis-store:/data
+
+volumes:
+  expert-db:
+  redis-store:
+  fsq-store:
+
+networks:
+  faas:
+    external:
+      name: alsad_faas

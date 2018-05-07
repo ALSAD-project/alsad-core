@@ -1,0 +1,27 @@
+hash: a30233cf9e2d3f1bbdb5a9623612e4fd5e1aee5bca767914193181af5ae6990c
+updated: 2018-04-05T17:55:20.589304+08:00
+imports:
+- name: github.com/adjust/rmq
+  version: 99798ba09475383696d53071bd9885ac41694a7b
+- name: github.com/adjust/uniuri
+  version: 498743145e60c272b71d377c4e456335e4ef7524
+- name: github.com/fsnotify/fsnotify
+  version: c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9
+- name: github.com/kelseyhightower/envconfig
+  version: b2c5c876e2659d9060d82e9b8494150d53854cc4
+- name: github.com/satori/go.uuid
+  version: f58768cc1a7a7e77a3bd49e98cdd21419399b6a3
+- name: golang.org/x/sys
+  version: 378d26f46672a356c46195c28f61bdb4c0a781dd
+  subpackages:
+  - unix
+- name: gopkg.in/bsm/ratelimit.v1
+  version: db14e161995a5177acef654cb0dd785e8ee8bc22
+- name: gopkg.in/redis.v3
+  version: b5e368500d0a508ef8f16e9c2d4025a8a46bcc29
+  subpackages:
+  - internal
+  - internal/consistenthash
+  - internal/hashtag
+  - internal/pool
+testImports: []
