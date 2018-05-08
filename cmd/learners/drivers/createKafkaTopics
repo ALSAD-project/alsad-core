@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# Run this script after Kafka is deployed on Kubernetes
+
+kubectl exec -ti kafka-0 -- \
+kafka-topics.sh --create \
+--topic streamin \
+--zookeeper zk-0.zk-svc.default.svc.cluster.local:2181,zk-1.zk-svc.default.svc.cluster.local:2181,zk-2.zk-svc.default.svc.cluster.local:2181 \
+--partitions 3 \
+--replication-factor 2
+
+kubectl exec -ti kafka-0 -- \
+kafka-topics.sh --create \
+--topic streamout \
+--zookeeper zk-0.zk-svc.default.svc.cluster.local:2181,zk-1.zk-svc.default.svc.cluster.local:2181,zk-2.zk-svc.default.svc.cluster.local:2181 \
+--partitions 3 \
+--replication-factor 2
+
