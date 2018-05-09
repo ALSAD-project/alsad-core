@@ -10,6 +10,4 @@ sleep 60
 kubectl create -f contrib/statefulsets/kafka/kafka.yaml
 sleep 60
 ./createKafkaTopics
-sleep 10
-kubectl scale statefulset kafka --replicas=1
 kubectl proxy

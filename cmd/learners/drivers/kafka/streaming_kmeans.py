@@ -16,8 +16,9 @@ if __name__ == "__main__":
         exit(-1)
 
     def parse(lp):
-        label = float(lp[lp.find('(') + 1: lp.find(')')])
-        vec = Vectors.dense(lp[lp.find('[') + 1: lp.find(']')].split(','))
+        record = [float(x) for x in lp.strip().split(',')]
+        label = record[-1]
+        vec = Vectors.dense(record[:-1])
 
         return LabeledPoint(label, vec)
 
@@ -33,7 +34,7 @@ if __name__ == "__main__":
     lines = kvs.map(lambda x: x[1])
     testingData = lines.map(parse)
 
-    model = StreamingKMeans(k=5, decayFactor=1.0).setRandomCenters(4, 1.0, 0)
+    model = StreamingKMeans(k=3, decayFactor=1.0).setRandomCenters(4, 1.0, 0)
 
     model.trainOn(trainingData)
 
