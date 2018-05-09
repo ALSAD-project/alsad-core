@@ -1,15 +1,16 @@
+// TCP Driver
+//
 // Example use:
 
-// The following example starts a data source as nc in Shell A,
-// and starts the driver in Shell B. The user program "python 
-// sgdclassifier.py" will be deployed by the driver. The driver
-// will wire up the data source and the user program. The user 
-// program should initiate a TCP socket to this driver.
+// The following example first deploys the user program "python 
+// sgdclassifier.py" and listen for connection from the dispatcher.
+// It will wire up the dispatcher and the user program. The dispatcher 
+// and the user program should initiate a TCP socket to this driver.
 
 // $ export DISPATCHER_LISTEN_URL=":9999"
 // $ export USERPROG_LISTEN_URL=":8888"
-// $ export USER_PROGRAM="python etc/local/sgdclassifier.py"
-// $ ./drivers
+// $ export USER_PROGRAM="python sgdclassifier.py"
+// $ ./tcp
 
 
 package main
