@@ -6,14 +6,10 @@
 // will wire up the data source and the user program. The user 
 // program should initiate a TCP socket to this driver.
 
-// (Shell A)
-// $ nc -lk 9999
-
-// (Shell B)
-// $ export StreamInURL=":9999"
-// $ export StreamOutURL=":8888"
-// $ export UserProgram="python sgdclassifier.py"
-// $ ./driver
+// $ export DISPATCHER_LISTEN_URL=":9999"
+// $ export USERPROG_LISTEN_URL=":8888"
+// $ export USER_PROGRAM="python etc/local/sgdclassifier.py"
+// $ ./drivers
 
 
 package main
@@ -43,29 +39,32 @@ func signalHandler(cmd *exec.Cmd) {
                 if err := cmd.Process.Kill(); err != nil {
                     panic(err)
                 }
+                fmt.Println("User program killed.")
                 os.Exit(0)
             }
         }
     }()
 }
 
-func handleStreamIn(dataSourceConn net.Conn, userProgConn net.Conn) {
+func handleStreamIn(sourceConn net.Conn, targetConn net.Conn) {
     for {
-        streamIn, err := bufio.NewReader(dataSourceConn).ReadString('\n')
+        streamIn, err := bufio.NewReader(sourceConn).ReadString('\n')
         if err != nil {
             panic(err)
         }
-        fmt.Fprintf(userProgConn, streamIn)
+        fmt.Fprintf(targetConn, streamIn)
+        fmt.Println("Total bytes passed to user program:", len(streamIn))
     }
 }
 
-func handleStreamOut(dataSourceConn net.Conn, userProgConn net.Conn) {
+func handleStreamOut(sourceConn net.Conn, targetConn net.Conn) {
     for {
-        streamOut, err := bufio.NewReader(userProgConn).ReadString('\n')
+        streamOut, err := bufio.NewReader(targetConn).ReadString('\n')
         if err != nil {
             panic(err)
         }
-        fmt.Fprintf(dataSourceConn, streamOut)
+        fmt.Fprintf(sourceConn, streamOut)
+        fmt.Println("Total bytes passed to dispatcher:", len(streamOut))
     }
 }
 
@@ -87,29 +86,44 @@ func main() {
     // Create signal handler for killing user program when ^C received
     go signalHandler(cmd)
 
-    // Connect to stream in data source
-    dataSourceConn, err := net.Dial("tcp", driverConfig.StreamInURL)
+    // [For testing] Connect to dispatcher
+    // dispatcherConn, err := net.Dial("tcp", driverConfig.DispatcherListenURL)
+    // if err != nil {
+    //     panic(err)
+    // }
+
+    // Listen for dispatcher
+    dispatcherLn, err := net.Listen("tcp", driverConfig.DispatcherListenURL)
     if err != nil {
         panic(err)
     }
     
-    // Listen for stream out data target (i.e. user program)
-    ln, err := net.Listen("tcp", driverConfig.StreamOutURL)
+    // Listen for user program
+    userProgLn, err := net.Listen("tcp", driverConfig.UserProgListenURL)
     if err != nil {
         panic(err)
     }
 
-    // Always wait for user program(s) to connect
+    // Wait for user program to connect to this driver
+    userProgConn, err := userProgLn.Accept()
+    if err != nil {
+        panic(err)
+    }
+    fmt.Println("User program connected.")
+
+    // Always wait for dispatcher to connect
     for {
-        // Once connected by a user program,
-        userProgConn, err := ln.Accept()
+        // Once connected by dispatcher,
+        dispatcherConn, err := dispatcherLn.Accept()
         if err != nil {
             panic(err)
         }
+        fmt.Println("Dispatcher connected.")
+
         // pass stream in data to user program, and
-        go handleStreamIn(dataSourceConn, userProgConn)
-        // pass stream out data to data source. 
-        go handleStreamOut(dataSourceConn, userProgConn)
+        go handleStreamIn(dispatcherConn, userProgConn)
+        // pass stream out data to dispatcher. 
+        go handleStreamOut(dispatcherConn, userProgConn)
     }
 
 }
