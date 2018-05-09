@@ -1,8 +1,6 @@
 #!/bin/bash
 
-cd spark/dist/
-
-bin/spark-submit \
+./spark/dist/bin/spark-submit \
   --deploy-mode cluster \
   --master k8s://http://127.0.0.1:8001 \
   --conf spark.executor.instances=1 \

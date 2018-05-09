@@ -1,6 +1,6 @@
 #!/bin/bash
 
-spark/dist/bin/spark-submit \
+./spark/dist/bin/spark-submit \
   --deploy-mode cluster \
   --master k8s://http://127.0.0.1:8001 \
   --conf spark.executor.instances=5 \
@@ -11,4 +11,4 @@ spark/dist/bin/spark-submit \
   --conf spark.kubernetes.resourceStagingServer.uri=http://192.168.64.22:31000 \
   --jars local:///opt/spark/examples/jars/spark-examples_2.11-2.2.0-k8s-0.5.0.jar \
   --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.2.0 \
-  etc/spark/streaming_kmeans.py zk-0.zk-svc.default.svc.cluster.local:2181 streamin streamout
+  ./kafka/streaming_kmeans.py zk-0.zk-svc.default.svc.cluster.local:2181 streamin streamout
