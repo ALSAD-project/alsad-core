@@ -1,3 +1,8 @@
+# Example use:
+# $ kubectl port-forward `kubectl get pods -o=jsonpath='{range .items[*]}{.metadata.name}{"\n"}' | grep driver` 4040:4040
+# $ kubectl exec -ti kafka-0 -- kafka-console-producer.sh --topic streamin --broker-list localhost:9093
+# $ kubectl exec -ti kafka-0 -- kafka-console-producer.sh --topic streamout --broker-list localhost:9093
+
 from __future__ import print_function
 
 import sys

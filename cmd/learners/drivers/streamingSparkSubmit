@@ -8,7 +8,7 @@
   --conf spark.kubernetes.driver.docker.image=fortesit/spark-driver-py:v2.2.0-kubernetes-0.5.0 \
   --conf spark.kubernetes.executor.docker.image=fortesit/spark-executor-py:v2.2.0-kubernetes-0.5.0 \
   --conf spark.kubernetes.initcontainer.docker.image=fortesit/spark-init:v2.2.0-kubernetes-0.5.0 \
-  --conf spark.kubernetes.resourceStagingServer.uri=http://192.168.64.32:31000 \
+  --conf spark.kubernetes.resourceStagingServer.uri=http://192.168.64.38:31000 \
   --jars local:///opt/spark/examples/jars/spark-examples_2.11-2.2.0-k8s-0.5.0.jar \
   --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.2.0 \
   ./kafka/streaming_kmeans.py zk-0.zk-svc.default.svc.cluster.local:2181 streamin streamout

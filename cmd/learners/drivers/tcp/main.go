@@ -11,6 +11,7 @@
 // $ export USERPROG_LISTEN_URL=":8888"
 // $ export USER_PROGRAM="python sgdclassifier.py"
 // $ ./tcp
+// $ nc localhost 9999
 
 
 package main

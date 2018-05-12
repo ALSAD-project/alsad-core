@@ -1,6 +1,10 @@
 // Kafka Driver
 //
 // Example use:
+// $ ../scaleKafka
+// $ kubectl port-forward kafka-0 9093:9093
+// $ kubectl exec -ti kafka-0 -- kafka-console-consumer.sh --topic streamin --bootstrap-server localhost:9093
+// $ kubectl exec -ti kafka-0 -- kafka-console-producer.sh --topic streamout --broker-list localhost:9093
 // $ export DISPATCHER_LISTEN_URL=":9999"
 // $ export KAFKA_BROKER_URL=":9093"
 // $ ./kafka
